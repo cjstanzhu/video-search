@@ -1,10 +1,17 @@
 import React from "react";
 import SearchBar from "./SearchBar";
 import youtube from "../api/youtube"
+import VideoList from "./VideoList";
+import VideoDetail from "./VideoDetail";
 
 class App extends React.Component {
     state = {
-        videos: []
+        videos: [],
+        selectedVideo: null
+    };
+
+    componentDidMount() {
+        this.onTermSubmit("buildings"); // default search on load...
     };
 
     onTermSubmit = async term => {
@@ -14,13 +21,35 @@ class App extends React.Component {
             }
         });
 
-        this.setState({videos: response.data.items});
+        this.setState({
+            videos: response.data.items,
+            selectedVideo: response.data.items[0] // selects the first response and displays it
+        });
+    };
+
+    onVideoSelect = video => {
+        this.setState({selectedVideo: video});
     };
 
     render() {
         return (
             <div className="ui container" style={{marginTop: "10px"}}>
                 <SearchBar onFormSubmit={this.onTermSubmit} />
+
+                <div className="ui grid">
+                    <div className="ui row">
+                        <div className="eleven wide column">
+                            <VideoDetail video={this.state.selectedVideo} />
+                        </div>
+
+                        <div className="five wide column">
+                            <VideoList
+                                videos={this.state.videos}
+                                onVideoSelect={this.onVideoSelect}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     };
